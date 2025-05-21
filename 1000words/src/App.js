@@ -22,6 +22,7 @@ function App() {
   const nameInputRef = useRef(null);
   const canvasRef = useRef(null);
   const [drawing, setDrawing] = useState(false);
+  const [tool, setTool] = useState("pencil");
   const ctxRef = useRef(null);
 
   const startDrawing = (e) => {
@@ -35,12 +36,34 @@ function App() {
   const draw = (e) => {
     if (!drawing) return;
     const ctx = ctxRef.current;
-    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-    ctx.stroke();
+    if (tool === "pencil") {
+      ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+      ctx.stroke();
+    } else if (tool === "eraser") {
+      ctx.clearRect(
+        e.nativeEvent.offsetX - 10,
+        e.nativeEvent.offsetY - 10,
+        20,
+        20
+      ); // Erase 20x20 px area
+    }
   };
 
   const stopDrawing = () => {
     setDrawing(false);
+  };
+
+  const clearCanvas = () => {
+    const ctx = canvasRef.current.getContext("2d");
+    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+  };
+
+  const switchToPencil = () => {
+    setTool("pencil");
+  };
+
+  const switchToEraser = () => {
+    setTool("eraser");
   };
 
   const signUserOut = async () => {
