@@ -1,23 +1,26 @@
-import logo from './logo.svg';
+import React, { useState, useRef, useEffect  } from 'react';
 import './App.css';
+import { Auth } from './components/Auth'
+import { signOut } from 'firebase/auth'
+import Cookies from 'universal-cookie'
+import { auth } from "./firebase-config"
+
+const cookies = new Cookies();
 
 function App() {
+  const [isAuth, setIsAuth] = useState(cookies.get("auth-token"));
+
+  if(!isAuth){
+    return (
+      <div>
+        <Auth setIsAuth={setIsAuth}/>
+      </div>
+      );
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>beginning project</h1>
     </div>
   );
 }
