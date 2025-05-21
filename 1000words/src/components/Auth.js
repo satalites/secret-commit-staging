@@ -11,6 +11,16 @@ export const Auth = (props) => {
         try{
             const result = await signInWithPopup(auth, provider);
             cookies.set("auth-token", result.user.refreshToken);
+            cookies.set("uid", result.user.uid);
+
+            let savedUsername = cookies.get("username");
+            if(!savedUsername){
+                const enteredUsername = "Anonymous" + Math.floor(Math.random() * 999);
+                if(enteredUsername){
+                    cookies.set("username", enteredUsername);
+                }
+            }
+
             setIsAuth(true);
         } catch (err){
             console.error(err);

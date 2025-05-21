@@ -1,25 +1,64 @@
-import React, { useState, useRef, useEffect  } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import { Auth } from './components/Auth'
 import { Chat } from './components/Chat'
 import { signOut } from 'firebase/auth'
+import { addDoc, serverTimestamp, collection } from 'firebase/firestore'
 import Cookies from 'universal-cookie'
-import { auth } from "./firebase-config"
+import { auth, db } from "./firebase-config"
+import doraemonGif from './assets/doraemon.gif'
+import './App.css'
 
 const cookies = new Cookies();
+
+let newUsername = "";
 
 function App() {
   const [isAuth, setIsAuth] = useState(cookies.get("auth-token"));
   const [room, setRoom] = useState(null)
+  const messagesRef = collection(db, "messages");
 
   const roomInputRef = useRef(null);
+  const nameInputRef = useRef(null);
 
   const signUserOut = async () => {
     await signOut(auth);
     cookies.remove("auth-token");
     setIsAuth(false);
+    if(room){
+      leaveRoom();
+    }
     setRoom(null);
   };
+
+  const changeName = () => {
+    newUsername = nameInputRef.current.value;
+    cookies.set("username", newUsername);
+  }
+
+  const leaveRoom = async (e) => {
+    await addDoc(messagesRef, {
+      text: cookies.get("username") + " left chat",
+      createdAt: serverTimestamp(),
+      user: "CHATG0D",
+      room: room,
+      uid: "IgFDnls934dsyhs3otFHIRe87uV2",
+    });
+    setRoom(null);
+  }
+
+  const joinRoom = async (e) => {
+    const roomValue = roomInputRef.current.value;
+    setRoom(roomValue);
+
+    console.log("JOINED ROOM");
+    await addDoc(messagesRef, {
+      text: cookies.get("username") + " joined chat",
+      createdAt: serverTimestamp(),
+      user: "CHATG0D",
+      room: roomValue,
+    });
+  }
 
   if(!isAuth){
     return (
@@ -29,25 +68,37 @@ function App() {
       );
   }
   return (
-      <>
-        {room ? (
-          <Chat room={room}/>
-        ) : (
-        <div className="room">
-            <label>
-              ᓚ₍⑅^- .-^₎ -ᶻ 𝗓 𐰁✧ <br></br>
-              Enter Room Name:
-              </label>
-            <input ref={roomInputRef}/>
-            <br></br>
-            <button onClick={() => setRoom(roomInputRef.current.value)}> ≽^•⩊•^≼ enter chatroom ₍^. .^₎⟆</button>
-        </div>
-        )}
+  <>
+    {room ? (
+      <div>
+        <Chat room={room} />
+        <button onClick={leaveRoom}>leave room ☘︎</button>
         <div className="sign-out">
           <button onClick={signUserOut}>sign out</button>
         </div>
-      </>
-  );
+      </div>
+    ) : (
+      <div className="room">
+
+        <label>
+          ᓚ₍⑅^- .-^₎ -ᶻ 𝗓 𐰁✧ <br />
+          Enter Room Name:
+        </label>
+        <input ref={roomInputRef} />
+        <button onClick={joinRoom}> ≽^•⩊•^≼ enter chatroom ₍^. .^₎⟆</button>
+        <label>
+          <br />
+          Enter Username:
+        </label>
+        <input ref={nameInputRef} />
+        <button onClick={changeName}> submit name ＊*•̩̩͙✩•̩̩͙*˚</button>
+        <div className="sign-out">
+          <button onClick={signUserOut}>sign out</button>
+        </div>
+      </div>
+    )}
+  </>
+);
 }
 
 export default App;
