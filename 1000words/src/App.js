@@ -29,28 +29,39 @@ function App() {
   const [color, setColor] = useState("black");
   const ctxRef = useRef(null);
 
+  const strokeWidths = {
+    pen: 0.3,
+    pencil: 3.0,
+    marker: 5.0,
+    brush: 7.5,
+  };
+
   const startDrawing = (e) => {
     setDrawing(true);
     const ctx = canvasRef.current.getContext("2d");
-    ctx.strokeStyle = color;
     ctx.beginPath();
     ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
     ctxRef.current = ctx;
+
+    if (tool !== "eraser") {
+      ctx.lineWidth = strokeWidths[tool] || 1.0;
+      ctx.strokeStyle = color;
+    }
   };
 
   const draw = (e) => {
     if (!drawing) return;
     const ctx = ctxRef.current;
-    if (tool === "pencil") {
-      ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-      ctx.stroke();
-    } else if (tool === "eraser") {
+    if (tool === "eraser") {
       ctx.clearRect(
         e.nativeEvent.offsetX - 10,
         e.nativeEvent.offsetY - 10,
         20,
         20
-      ); // Erase 20x20 px area
+      ); 
+    } else {
+      ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+      ctx.stroke();
     }
   };
 
@@ -136,8 +147,13 @@ function App() {
             onMouseLeave={stopDrawing}
           ></canvas>
           <button onClick={clearCanvas}>Clear</button>
-          <button onClick={switchToPencil}>Pencil</button>
-          <button onClick={switchToEraser}>Eraser</button>
+          <div className="tools">
+              <button onClick={() => setTool("pen")}>Pen</button>
+              <button onClick={() => setTool("pencil")}>Pencil</button>
+              <button onClick={() => setTool("marker")}>Marker</button>
+              <button onClick={() => setTool("brush")}>Paint Brush</button>
+              <button onClick={() => setTool("eraser")}>Eraser</button>
+              </div>
             <div className="color-buttons">
                 {colors.map((c) => (
                   <button
