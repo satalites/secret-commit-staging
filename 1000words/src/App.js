@@ -130,6 +130,9 @@ function App() {
             onMouseUp={stopDrawing}
             onMouseLeave={stopDrawing}
           ></canvas>
+          <button onClick={clearCanvas}>Clear</button>
+          <button onClick={switchToPencil}>Pencil</button>
+          <button onClick={switchToEraser}>Eraser</button>
         </div>
       </div>
     ) : (
