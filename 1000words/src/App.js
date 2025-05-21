@@ -20,6 +20,28 @@ function App() {
 
   const roomInputRef = useRef(null);
   const nameInputRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [drawing, setDrawing] = useState(false);
+  const ctxRef = useRef(null);
+
+  const startDrawing = (e) => {
+    setDrawing(true);
+    const ctx = canvasRef.current.getContext("2d");
+    ctx.beginPath();
+    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    ctxRef.current = ctx;
+  };
+
+  const draw = (e) => {
+    if (!drawing) return;
+    const ctx = ctxRef.current;
+    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    setDrawing(false);
+  };
 
   const signUserOut = async () => {
     await signOut(auth);
@@ -75,6 +97,16 @@ function App() {
         <button onClick={leaveRoom}>leave room ☘︎</button>
         <div className="sign-out">
           <button onClick={signUserOut}>sign out</button>
+          <canvas
+            ref={canvasRef}
+            width={550}
+            height={250}
+            style={{ border: "1px solid black" }}
+            onMouseDown={startDrawing}
+            onMouseMove={draw}
+            onMouseUp={stopDrawing}
+            onMouseLeave={stopDrawing}
+          ></canvas>
         </div>
       </div>
     ) : (
